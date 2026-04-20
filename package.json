@@ -1,0 +1,33 @@
+{
+  "name": "yt-download-cli",
+  "version": "0.1.0",
+  "description": "A TypeScript CLI scaffold for downloading YouTube content from the terminal.",
+  "main": "dist/cli.js",
+  "bin": {
+    "yt-download-cli": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts",
+    "prepack": "pnpm build",
+    "test": "vitest run"
+  },
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.33.0",
+  "dependencies": {
+    "commander": "^14.0.3",
+    "youtubei.js": "^17.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.4"
+  }
+}
