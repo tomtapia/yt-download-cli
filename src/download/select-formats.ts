@@ -13,7 +13,7 @@ function selectAudioPlan(formats: StreamFormat[], request: DownloadRequest): Dow
   const audioOnlyCandidates = formats
     .filter((format) => format.hasAudio && !format.hasVideo)
     .filter((format) => matchesAudioContainer(format, request.container))
-    .sort(compareByAudioQuality);
+    .sort((left, right) => compareAudioPreference(left, right, request.container));
 
   const selectedAudioOnly = audioOnlyCandidates[0];
 
@@ -29,7 +29,7 @@ function selectAudioPlan(formats: StreamFormat[], request: DownloadRequest): Dow
   const progressiveCandidates = formats
     .filter((format) => format.hasAudio && format.hasVideo)
     .filter((format) => matchesAudioContainer(format, request.container))
-    .sort(compareByAudioQuality);
+    .sort((left, right) => compareAudioPreference(left, right, request.container));
 
   const selectedProgressive = progressiveCandidates[0];
 
@@ -118,6 +118,10 @@ function matchesAudioContainer(format: StreamFormat, container: DownloadRequest[
     return format.container === "mp4";
   }
 
+  if (container === "mp3") {
+    return true;
+  }
+
   return format.container === container;
 }
 
@@ -132,6 +136,41 @@ function matchesVideoQuality(format: StreamFormat, quality: DownloadRequest["qua
 
 function compareByAudioQuality(left: StreamFormat, right: StreamFormat): number {
   return (right.audioBitrate ?? right.bitrate ?? 0) - (left.audioBitrate ?? left.bitrate ?? 0);
+}
+
+function compareAudioPreference(
+  left: StreamFormat,
+  right: StreamFormat,
+  container: DownloadRequest["container"]
+): number {
+  if (container === "mp3") {
+    const qualityComparison = compareByAudioQuality(left, right);
+
+    if (qualityComparison !== 0) {
+      return qualityComparison;
+    }
+
+    const leftScore = getMp3SourcePreference(left);
+    const rightScore = getMp3SourcePreference(right);
+
+    if (leftScore !== rightScore) {
+      return rightScore - leftScore;
+    }
+  }
+
+  return compareByAudioQuality(left, right);
+}
+
+function getMp3SourcePreference(format: StreamFormat): number {
+  if (format.container === "mp4") {
+    return 2;
+  }
+
+  if (format.container === "webm") {
+    return 1;
+  }
+
+  return 0;
 }
 
 function compareByVideoQuality(left: StreamFormat, right: StreamFormat): number {

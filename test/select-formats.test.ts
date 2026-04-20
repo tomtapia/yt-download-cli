@@ -126,6 +126,66 @@ describe("selectDownloadPlan", () => {
     ).toThrow("No downloadable audio format is available for container 'm4a'.");
   });
 
+  it("prefers the highest bitrate audio source for mp3 output", () => {
+    const plan = selectDownloadPlan(
+      [
+        {
+          itag: 251,
+          url: "https://example.com/audio.webm",
+          mimeType: 'audio/webm; codecs="opus"',
+          container: "webm",
+          fileExtension: "webm",
+          codecs: ["opus"],
+          bitrate: 160000,
+          audioBitrate: 160000,
+          isProgressive: false,
+          hasVideo: false,
+          hasAudio: true
+        },
+        formats[2]
+      ],
+      {
+        ...baseRequest,
+        mode: "audio",
+        container: "mp3"
+      }
+    );
+
+    expect(plan.strategy).toBe("single");
+    expect(plan.format.itag).toBe(251);
+    expect(plan.extension).toBe("mp3");
+  });
+
+  it("uses mp4 as a tiebreaker for mp3 output when audio bitrate is equivalent", () => {
+    const plan = selectDownloadPlan(
+      [
+        {
+          itag: 251,
+          url: "https://example.com/audio.webm",
+          mimeType: 'audio/webm; codecs="opus"',
+          container: "webm",
+          fileExtension: "webm",
+          codecs: ["opus"],
+          bitrate: 128000,
+          audioBitrate: 128000,
+          isProgressive: false,
+          hasVideo: false,
+          hasAudio: true
+        },
+        formats[2]
+      ],
+      {
+        ...baseRequest,
+        mode: "audio",
+        container: "mp3"
+      }
+    );
+
+    expect(plan.strategy).toBe("single");
+    expect(plan.format.itag).toBe(140);
+    expect(plan.extension).toBe("mp3");
+  });
+
   it("respects the requested quality ceiling", () => {
     const plan = selectDownloadPlan(formats, {
       ...baseRequest,

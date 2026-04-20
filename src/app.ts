@@ -78,10 +78,14 @@ function registerDownloadCommand(program: Command, dependencies: CliDependencies
     .description("Download a public YouTube video using the built-in TypeScript downloader")
     .addOption(new Option("--mode <mode>", "Download mode").choices(["video", "audio"]).default("video"))
     .addOption(
-      new Option("--container <container>", "Output container").choices(["mp4", "webm", "m4a"])
+      new Option("--container <container>", "Output container").choices(["mp4", "webm", "m4a", "mp3"])
     )
     .addOption(
       new Option("--quality <quality>", "Quality preset").choices(["best", "1080p", "720p", "480p"]).default("best")
+    )
+    .addOption(
+      new Option("--audio-bitrate <bitrate>", "MP3 audio bitrate")
+        .choices(["128k", "192k", "256k", "320k"])
     )
     .option("--output-dir <path>", "Directory where the output file will be written")
     .option("--overwrite", "Replace the output file if it already exists")

@@ -6,7 +6,7 @@ import { downloadToFile } from "./http";
 import { normalizeDownloadOptions } from "./options";
 import { remuxSingleInput, muxVideoAndAudio, ensureFfmpegInstalled, type FfmpegDependencies } from "./ffmpeg";
 import { sanitizeTitle } from "./sanitize-title";
-import type { DownloadCommandOptions, DownloadRequest, DownloadResult } from "./types";
+import type { DownloadCommandOptions, DownloadRequest, DownloadResult, Mp3TagMetadata } from "./types";
 import { resolveDownloadPlan, type ResolveDownloadPlanDependencies } from "../youtube/extractor";
 
 export type DownloadServiceDependencies = ResolveDownloadPlanDependencies &
@@ -48,7 +48,17 @@ async function downloadResolvedRequest(
     if (plan.strategy === "single") {
       const inputPath = join(temporaryDir, `input.${plan.format.fileExtension}`);
       await downloadImpl(plan.format.url, inputPath, dependencies.fetchImpl ?? fetch);
-      await remuxSingleInput(inputPath, finalPath, request.mode, dependencies);
+      await remuxSingleInput(
+        inputPath,
+        finalPath,
+        request.mode,
+        {
+          container: request.container,
+          audioBitrate: request.audioBitrate,
+          metadata: getMp3TagMetadata(request, resolved.metadata)
+        },
+        dependencies
+      );
     } else {
       const videoPath = join(temporaryDir, `video.${plan.videoFormat.fileExtension}`);
       const audioPath = join(temporaryDir, `audio.${plan.audioFormat.fileExtension}`);
@@ -81,4 +91,16 @@ async function assertDoesNotExist(filePath: string): Promise<void> {
   }
 
   throw new CliError(`The output file '${basename(filePath)}' already exists. Use --overwrite to replace it.`);
+}
+
+function getMp3TagMetadata(request: DownloadRequest, metadata: DownloadResult["metadata"]): Mp3TagMetadata | undefined {
+  if (request.mode !== "audio" || request.container !== "mp3") {
+    return undefined;
+  }
+
+  return {
+    title: metadata.title,
+    artist: metadata.author,
+    comment: request.url
+  };
 }

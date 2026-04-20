@@ -1,11 +1,18 @@
 export type DownloadMode = "video" | "audio";
-export type DownloadContainer = "mp4" | "webm" | "m4a";
+export type DownloadContainer = "mp4" | "webm" | "m4a" | "mp3";
 export type QualityPreset = "best" | "1080p" | "720p" | "480p";
+export type AudioBitrate = "128k" | "192k" | "256k" | "320k";
+export type Mp3TagMetadata = {
+  title?: string;
+  artist?: string;
+  comment?: string;
+};
 
 export type DownloadCommandOptions = {
   mode?: DownloadMode;
   container?: DownloadContainer;
   quality?: QualityPreset;
+  audioBitrate?: AudioBitrate;
   outputDir?: string;
   overwrite?: boolean;
 };
@@ -15,6 +22,7 @@ export type DownloadRequest = {
   mode: DownloadMode;
   container: DownloadContainer;
   quality: QualityPreset;
+  audioBitrate?: AudioBitrate;
   outputDir: string;
   overwrite: boolean;
 };
@@ -32,7 +40,7 @@ export type StreamFormat = {
   url: string;
   mimeType: string;
   container: "mp4" | "webm";
-  fileExtension: "mp4" | "webm" | "m4a";
+  fileExtension: "mp4" | "webm" | "m4a" | "mp3";
   codecs: string[];
   bitrate?: number;
   contentLength?: number;
