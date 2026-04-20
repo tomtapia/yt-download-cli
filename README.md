@@ -1,86 +1,61 @@
 # yt-download-cli
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+`yt-download-cli` is a TypeScript CLI for downloading public YouTube videos from the terminal. It uses `YouTube.js` for metadata and stream discovery and `ffmpeg` for remuxing or muxing the final output.
 
-## Descripción
+## Requirements
 
-`yt-download-cli` es un CLI en TypeScript para descargar videos públicos de YouTube. Incluye un scaffold extensible, comandos básicos de información y un subcomando `download` respaldado por `YouTube.js` para resolver metadata y streams desde InnerTube.
+- Node.js 20+
+- `pnpm`
+- `ffmpeg` available on `PATH`
 
-## Características
-
-*   **CLI en TypeScript:** estructura base lista para crecer con nuevos comandos.
-*   **Descarga de YouTube:** soporte inicial para videos públicos desde `youtube.com/watch` y `youtu.be`.
-*   **Backend TypeScript nativo:** usa `YouTube.js` en vez de `yt-dlp` o `@distube/ytdl-core`.
-*   **Selección simple de formato:** presets por modo, contenedor y calidad, resueltos sobre InnerTube.
-*   **Ayuda integrada:** `--help` muestra uso y opciones disponibles.
-*   **Información del proyecto:** `--about` imprime nombre, versión y descripción.
-*   **Gestión de dependencias:** utiliza `pnpm`.
-
-## Instalación
-
-Para instalar `yt-download-cli`, sigue estos pasos:
-
-1.  **Clonar el repositorio:**
-    ```bash
-    git clone [URL_DEL_REPOSITORIO]
-    cd yt-download-cli
-    ```
-
-2.  **Instalar dependencias:**
-    ```bash
-    pnpm install
-    ```
-
-3.  **Instalar `ffmpeg`:**
-    El comando `download` requiere `ffmpeg` disponible en el `PATH`.
-
-## Uso
-
-## Desarrollo
+## Development
 
 ```bash
 pnpm install
 pnpm dev --help
 pnpm dev --about
-pnpm dev download "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 pnpm build
 pnpm test
 ```
 
-## Uso
-
-Durante desarrollo:
+## Usage
 
 ```bash
-pnpm dev --help
-pnpm dev --about
-pnpm dev download "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --mode video --container mp4 --quality best
+pnpm dev download "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 pnpm dev download "https://youtu.be/dQw4w9WgXcQ" --mode audio --container m4a
-```
-
-Después de compilar:
-
-```bash
-node dist/cli.js --help
-node dist/cli.js --about
 node dist/cli.js download "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --output-dir ./downloads
 ```
 
-## Limitaciones de v1
+### Download options
 
-*   Solo soporta URLs públicas completas de `youtube.com/watch` y `youtu.be`.
-*   No soporta playlists, login, cookies, videos privados, age-gated ni streams en vivo.
-*   Requiere `ffmpeg` para muxing y remuxing.
+- `--mode video|audio`
+- `--container mp4|webm|m4a`
+- `--quality best|1080p|720p|480p`
+- `--output-dir <path>`
+- `--overwrite`
 
-## Requisitos
+Semantic constraints are enforced at runtime:
 
-*   Node.js 20+.
-*   pnpm instalado.
+- `--mode audio` only supports `--container m4a` or `--container webm`
+- `--mode video` only supports `--container mp4` or `--container webm`
+- `--quality` primarily affects video selection; in audio mode it only matters when the backend falls back to a progressive stream
 
-## Contribuciones
+## Packaging
 
-Las contribuciones son bienvenidas. Si deseas contribuir, por favor, revisa nuestro archivo `CONTRIBUTING.md` (si existe).
+```bash
+pnpm build
+pnpm pack --dry-run
+```
 
-## Licencia
+The published package is built from `dist/` during `prepack` and excludes source files, tests, specs, and local media.
 
-Este proyecto está distribuido bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
+## Current scope
+
+- Supports public `youtube.com/watch` and `youtu.be` URLs
+- Supports `video` and `audio` download modes
+- Uses a custom JavaScript evaluator for `YouTube.js` signature deciphering
+
+## Current limitations
+
+- No playlists, cookies, login-required videos, private videos, age-gated videos, or live streams
+- Depends on YouTube's current InnerTube/player behavior and may require extractor updates when YouTube changes

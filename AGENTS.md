@@ -1,30 +1,28 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-This repository is currently a small Node.js CLI scaffold. Root files include `package.json`, `pnpm-lock.yaml`, and [README.md](/Users/tomas/Dev/MyProject/yt-download-cli/README.md). Product and implementation notes live in `specs/`, currently `specs/cli-scaffold-spec.md`, which describes the intended TypeScript CLI shape. There is no `src/` or `tests/` directory yet; when adding implementation, place CLI source under `src/` and mirror tests under `tests/` or alongside source as `*.test.ts`.
+Source lives in `src/`. The CLI entrypoint is `src/cli.ts`, command wiring is in `src/app.ts`, download orchestration is under `src/download/`, and YouTube-specific extraction/evaluator logic is under `src/youtube/`. Tests live in `test/`. Product notes and feature specs live in `specs/`. Built output goes to `dist/` and should never be edited manually.
 
 ## Build, Test, and Development Commands
-Use `pnpm` as the package manager because the repo is pinned to `pnpm@10.33.0`.
+Use `pnpm` only.
 
-- `pnpm install`: install dependencies from `package.json`.
-- `pnpm test`: current placeholder script; it exits with an error until a real test runner is added.
-- `pnpm run pi`: runs the existing `pi` script defined in `package.json`.
+- `pnpm install`: install dependencies.
+- `pnpm dev --help`: run the CLI from source.
+- `pnpm dev download "<youtube-url>"`: exercise the downloader in development.
+- `pnpm build`: clean `dist/` and compile TypeScript.
+- `pnpm test`: run the Vitest suite.
+- `pnpm pack --dry-run`: verify the publishable package contents.
 
-If you add TypeScript tooling, keep standard lifecycle scripts at the root, for example `pnpm build`, `pnpm lint`, and `pnpm dev`.
+`ffmpeg` must be available on `PATH` for real downloads.
 
 ## Coding Style & Naming Conventions
-Write new code in TypeScript, matching the existing scaffold spec in `specs/cli-scaffold-spec.md`. Use 2-space indentation, keep files ASCII unless there is a clear reason not to, and prefer small modules with one clear responsibility. Use `kebab-case` for file names (`about-command.ts`), `camelCase` for variables/functions, and `PascalCase` for types and classes. If you introduce formatting or linting, prefer project-level scripts such as `pnpm lint` and `pnpm format`.
+Write TypeScript with 2-space indentation and keep modules focused. Use `camelCase` for functions/variables, `PascalCase` for types, and `kebab-case` for file names only when a file name would otherwise be ambiguous. Prefer small pure helpers for parsing/selection logic and keep CLI validation errors user-facing and explicit.
 
 ## Testing Guidelines
-There is no test framework configured yet. Add one before shipping behavior changes. Favor fast unit tests for argument parsing and command handlers, and name tests `*.test.ts`. A good starting point is to verify `--help`, `--about`, and exit codes from the CLI entry point.
+Tests use Vitest and live in `test/*.test.ts`. Add unit coverage for CLI parsing, download option validation, YouTube extraction, and failure handling. When changing packaging or release behavior, verify with `pnpm pack --dry-run` in addition to `pnpm test`.
 
 ## Commit & Pull Request Guidelines
-The repository has no commit history yet, so use short imperative commit messages such as `Add TypeScript CLI entrypoint` or `Set up help command tests`. Keep commits focused. For pull requests, include:
-
-- a concise summary of the change
-- linked issue or spec when relevant
-- commands run locally, such as `pnpm test`
-- terminal output or screenshots only when CLI behavior changed materially
+Use Conventional Commits, for example `feat: add initial stable YouTube downloader CLI` or `fix: retry innertube initialization after transient failures`. Keep commits scoped. PRs should include a short summary, the commands run locally, and terminal output when CLI behavior changed.
 
 ## Security & Configuration Tips
-Do not commit secrets, cookies, or downloaded media. Keep local environment details out of source control, and document new configuration in `README.md` when adding runtime dependencies or external APIs.
+Do not commit downloaded media, cookies, tokens, or local debug artifacts. The published package should contain runtime files only; keep `src/`, `test/`, specs, and local assets out of releases.
