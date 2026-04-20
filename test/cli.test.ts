@@ -48,7 +48,7 @@ describe("CLI integration", () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("yt-download-cli v0.1.0");
-    expect(result.stdout).toContain("downloading YouTube content");
+    expect(result.stdout).toContain("downloading public YouTube audio and video");
   });
 
   it("fails for an unknown option", () => {

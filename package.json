@@ -1,7 +1,7 @@
 {
   "name": "yt-download-cli",
   "version": "0.1.0",
-  "description": "A TypeScript CLI scaffold for downloading YouTube content from the terminal.",
+  "description": "A TypeScript CLI for downloading public YouTube audio and video from the terminal.",
   "main": "dist/cli.js",
   "bin": {
     "yt-download-cli": "dist/cli.js"
