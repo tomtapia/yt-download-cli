@@ -19,7 +19,7 @@ export function parseYouTubeUrl(input: string): ParsedYouTubeUrl {
   }
 
   const host = url.hostname.toLowerCase();
-  let videoId = "";
+  let videoId: string;
 
   if (YOUTUBE_HOSTS.has(host) && url.pathname === "/watch") {
     videoId = url.searchParams.get("v") ?? "";

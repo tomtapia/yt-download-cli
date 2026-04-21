@@ -26,7 +26,11 @@ const WINDOWS_RESERVED_BASENAMES = new Set([
 export function sanitizeTitle(value: string, fallback: string): string {
   const normalized = value
     .normalize("NFKC")
-    .replace(/[<>:"/\\|?*\u0000-\u001F]/g, "-")
+    .replace(/[<>:"/\\|?*]/g, "-")
+    .replaceAll(
+      /./gsu,
+      (character) => (character.charCodeAt(0) <= 0x1f ? "-" : character)
+    )
     .replace(/\s+/g, " ")
     .trim()
     .replace(/\.+$/g, "")
