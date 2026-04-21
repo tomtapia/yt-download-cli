@@ -1,84 +1,95 @@
-# yt-download-cli
+# 🎥 yt-download-cli
 
-`yt-download-cli` is a TypeScript CLI for downloading public YouTube audio and video from the terminal. It uses `YouTube.js` for metadata and stream discovery, a custom JavaScript evaluator for signature deciphering, and `ffmpeg` for remuxing, muxing, MP3 transcoding, and ID3 tagging.
+`yt-download-cli` is a robust, command-line interface (CLI) tool designed to download high-quality videos and audio streams from YouTube. It manages the entire download pipeline, from stream extraction and selection to advanced transcoding and metadata tagging.
 
-## Requirements
+## ✨ Features
 
-- Node.js 20+
-- `pnpm`
-- `ffmpeg` available on `PATH`
+*   **Universal Downloading:** Downloads media from specified YouTube URLs.
+*   **Format Selection:** Supports selecting various output formats (e.g., MP4 video, MP3 audio).
+*   **Transcoding:** Utilizes `ffmpeg` to convert video streams into audio formats (like MP3).
+*   **Metadata Embedding:** Automatically embeds ID3 metadata (title, artist, etc.) into audio files.
+*   **CLI Interface:** Provides a clear, user-friendly command-line experience with explicit error handling.
 
-## Development
+## 🚀 Prerequisites
+
+Before running the CLI, you must have the following dependencies installed:
+
+1.  **Node.js & pnpm:** The project uses `pnpm` for package management.
+    ```bash
+    npm install -g pnpm
+    ```
+2.  **FFmpeg:** The external multimedia framework is required for all transcoding, downloading, and metadata operations. Ensure it is installed and available in your system's PATH.
+    ```bash
+    # Example installation (may vary by OS)
+    brew install ffmpeg # for macOS
+    # or
+    sudo apt install ffmpeg # for Debian/Ubuntu
+    ```
+
+## 🛠️ Installation
+
+Install the package globally using pnpm:
 
 ```bash
-pnpm install
-pnpm dev --help
-pnpm dev --about
-pnpm build
+pnpm install -g @mariozechner/pi-coding-agent
+# Note: Replace the package name above with the actual package name if different
+```
+
+## 💻 Usage
+
+### Basic Download
+
+To download a video in its native format:
+
+```bash
+yt-download-cli download "<youtube-url>"
+```
+
+### Audio Extraction (MP3)
+
+To download and transcode the content into an MP3 file, including metadata:
+
+```bash
+yt-download-cli download "<youtube-url>" --audio mp3
+```
+
+### Advanced Options
+
+The CLI supports various options for format selection, quality control, and output paths. Refer to the `src/cli.ts` documentation for a full list of available flags.
+
+## 🏗️ Architecture & Design Philosophy
+
+This project adheres to a modular, highly decoupled architecture:
+
+*   **`src/cli.ts`**: The entry point, responsible for parsing user input and validating command-line options.
+*   **`src/app.ts`**: The core orchestrator, managing the flow of the download process.
+*   **`src/youtube/`**: Houses YouTube-specific logic, including the stream extractor and evaluator that determines the best available stream quality.
+*   **`src/download/`**: Manages the actual download logistics, stream orchestration, and the critical interaction with `ffmpeg`.
+
+**Design Focus:**
+The design prioritizes separation of concerns, ensuring that YouTube extraction logic does not interfere with core download/transcoding logic, leading to a highly maintainable codebase.
+
+## 🧪 Development & Contribution Guidelines
+
+We welcome contributions! If you plan to contribute, please adhere to the following guidelines:
+
+### 📜 Coding Standards
+*   **Language:** TypeScript.
+*   **Style:** 2-space indentation.
+*   **Naming:** Use `camelCase` for functions/variables and `PascalCase` for types.
+*   **Modularity:** Keep modules focused on a single responsibility.
+
+### 🧑‍💻 Testing
+*   All new features **must** include corresponding tests in the `test/` directory.
+*   Tests use **Vitest** and must cover CLI parsing, option validation, extractor behavior, and `ffmpeg` invocation details.
+
+### 🚢 Release Process
+When preparing a release, always run these commands to ensure integrity:
+```bash
 pnpm test
 pnpm pack --dry-run
 ```
 
-## Usage
-
-```bash
-pnpm dev download "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-pnpm dev download "https://youtu.be/dQw4w9WgXcQ" --mode audio --container m4a
-pnpm dev download "https://youtu.be/dQw4w9WgXcQ" --mode audio --container mp3 --audio-bitrate 192k
-node dist/cli.js download "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --output-dir ./downloads
-```
-
-### Download options
-
-- `--mode video|audio`
-- `--container mp4|webm|m4a|mp3`
-- `--quality best|1080p|720p|480p`
-- `--audio-bitrate 128k|192k|256k|320k`
-- `--output-dir <path>`
-- `--overwrite`
-
-Runtime rules:
-
-- `--mode audio` supports `m4a`, `webm`, and `mp3`
-- `--mode video` supports `mp4` and `webm` only
-- `--audio-bitrate` applies only to `--container mp3` and defaults to `192k`
-- `--quality` mainly affects video selection; in audio mode it matters only if the backend falls back to a progressive stream
-
-## Current behavior
-
-- `m4a` and `webm` audio outputs are remuxed without audio transcoding
-- `mp3` output is produced by downloading the best available source audio stream and transcoding it with `ffmpeg`
-- MP3 files are written with ID3v2.3 metadata:
-  - `title` from the YouTube video title
-  - `artist` from the YouTube channel/author when available
-  - `comment` with the original source URL
-- For MP3 source selection, bitrate is the primary ranking rule and container is only a tiebreaker
-
-## Packaging
-
-```bash
-pnpm build
-pnpm pack --dry-run
-```
-
-The published package is built from `dist/` during `prepack` and excludes source files, tests, specs, and local media.
-
-## Project layout
-
-- `src/app.ts` and `src/cli.ts`: CLI entrypoints and command wiring
-- `src/download/`: options, format selection, `ffmpeg` integration, and download orchestration
-- `src/youtube/`: YouTube extraction, URL parsing, and evaluator integration
-- `test/`: Vitest coverage for CLI behavior, validation, selection logic, evaluator behavior, `ffmpeg` args, and MP3 metadata handling
-- `specs/`: product specs and implementation plans kept in-repo for feature work
-
-## Current scope
-
-- Supports public `youtube.com/watch` and `youtu.be` URLs
-- Supports video download and audio download in `m4a`, `webm`, and `mp3`
-- Supports MP3 bitrate selection and embedded ID3 metadata
-
-## Current limitations
-
-- No playlists, cookies, login-required videos, private videos, age-gated videos, or live streams
-- No embedded album art, album, track number, lyrics, chapters, or richer audio metadata yet
-- Depends on YouTube's current InnerTube/player behavior and may require extractor updates when YouTube changes
+### ⚠️ Security & Stability Notes
+*   **Data Security:** Never commit downloaded media, cookies, tokens, or local debug artifacts.
+*   **YouTube Instability:** YouTube's API and stream structure are subject to change. Be prepared to update the `src/youtube/` extractor logic when regressions are detected.

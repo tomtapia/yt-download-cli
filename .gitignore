@@ -80,3 +80,5 @@ temp/
 
 # Tool-specific local state
 .pi
+skills-lock.json
+.codex
