@@ -9,6 +9,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.json",
     "dev": "tsx src/cli.ts",
+    "lint": "eslint src test",
     "prepack": "pnpm build",
     "test": "vitest run"
   },
@@ -25,9 +26,12 @@
     "youtubei.js": "^17.0.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.6.0",
+    "eslint": "^10.2.1",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.0",
     "vitest": "^4.1.4"
   }
 }
